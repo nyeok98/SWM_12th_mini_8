@@ -1,0 +1,27 @@
+{
+  "name": "chatbot_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/nyeok98/SWM_12th_mini_8.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nyeok98/SWM_12th_mini_8/issues"
+  },
+  "homepage": "https://github.com/nyeok98/SWM_12th_mini_8#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "firebase": "^8.4.2",
+    "morgan": "^1.10.0",
+    "re": "^0.1.4"
+  }
+}
