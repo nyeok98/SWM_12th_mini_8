@@ -99,6 +99,8 @@
    - `getRandomSentence` 함수를 사용하여 과거 좋은 날의 기록 중 하나를 무작위로 전송합니다.
    - 최근의 좋은 기억보다 시간이 더 흐른 좋은 기억을 돌아 볼 수 있도록 하였습니다.
      - 가장 오래된 기억의 `probability distribution function` 값이 가장 최근 기억보다 linear하게 3배 높을 때의 index를 구하여 해당 기억을 반환합니다.
+     - <img src="readme_img/memory_load.png">
+     - (해당 함수 이미지)
 
 ### 사용 기술
 
