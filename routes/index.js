@@ -15,7 +15,7 @@ const nlp = require('../google-nlp-api/sentiment'); // google natural language �
 async function sendMainMessage(conversation_id){
     return await libKakaoWork.sendMessage({
         conversationId: conversation_id,
-        text: 'To. Tomorrow ✍️',
+        text: '팔만대장경팀 - To.Tomorrow ✍️',
         blocks: [
             {
                 type: 'header',
@@ -24,7 +24,7 @@ async function sendMainMessage(conversation_id){
             },
             {
                 type: 'text',
-                text: '당신의 내일에게.\n*To. Tomorrow 입니다.*',
+                text: '당신의 내일에게.\n*To. Tomorrow 입니다.*\n단지 기록을 넘어, 당신의 감정을 느끼고 위로합니다.',
                 markdown: true,
             },
             {
@@ -33,7 +33,7 @@ async function sendMainMessage(conversation_id){
             {
                 type: 'text',
                 text:
-                    '오늘을 담는 건, \n내일의 나를 위한 것이에요.\n\n밝았던 날, 울적했던 날,\n그 모든 어제가 모여 지금의 내가 되었듯,\n오늘도 기록을 남겨봅시다. ✍️',
+                    '오늘을 담는 건,\n내일의 나를 위한 것이에요.\n\n밝았던 날, 울적했던 날,\n그 모든 어제가 모여 지금의 내가 되었듯,\n오늘도 기록을 남겨봅시다. ✍️',
                 markdown: true,
             },
             {
@@ -144,7 +144,7 @@ const saveMessage = async (convId, text, time) => {
     var ref_val = database.ref('conversations/' + convId + '/messages');
     var new_ref = ref_val.push();
     new_ref.set({
-        date: time, // 메시지를 작성했던 시간을 가져올 수 있게 수정했습니다
+        date: new Date(time), // 메시지를 작성했던 시간을 가져올 수 있게 수정했습니다
         text: text,
     });
 };
@@ -171,12 +171,13 @@ const loadMessage = async (convId) => {
         s = data[v];
         var seoul = moment(s.date).tz('Asia/Seoul');
 
-        //s.date = seoul.toDate();
+        s.date = seoul.toDate();
         list_data.push([s.text, s.date]);
     }
     sentence = getRandomSentence(list_data);
     return sentence;
 };
+
 router.post('/callback', async (req, res, next) => {
     const { message, actions, action_time, value } = req.body;
     const callBackData = JSON.parse(value);
@@ -187,6 +188,7 @@ router.post('/callback', async (req, res, next) => {
             const sentimental = await nlp.getSentiment(actions.record);
             if (sentimental < 0) {
                 var loaded = await loadMessage(message.conversation_id);
+				loaded[1] = loaded[1] ? new Date(loaded[1]) : 0
                 await libKakaoWork.sendMessage({
                     conversationId: message.conversation_id,
                     text: 'To.Tomorrow ✍️',
@@ -198,7 +200,7 @@ router.post('/callback', async (req, res, next) => {
                         },
                         {
                             type: 'text',
-                            text: loaded
+                            text: loaded[1]
                                 ? `그리 좋진 않은 하루였나봐요.\n오늘의 기억은 그저 묻어두고\n그럼에도 좋았던 날들을 떠올려봅니다😊\n`
                                 : '아직 저장된 기록이 없습니다. ',
                             markdown: true,
@@ -208,16 +210,16 @@ router.post('/callback', async (req, res, next) => {
                         },
                         {
                             type: 'text',
-                            text: loaded
-                                ? `*${loaded[1].years()}년 ${
-                                      loaded[1].months() + 1
-                                  }월 ${loaded[1].date()}일 ${loaded[1].hours()}시 ${loaded[1].minutes()}분*의 기억입니다.`
+                            text: loaded[1]
+                                ? `*${loaded[1].getFullYear()}년 ${
+                                      loaded[1].getMonth() + 1
+                                  }월 ${loaded[1].getDate()}일 ${loaded[1].getHours()}시 ${loaded[1].getMinutes()}분*의 기억입니다.`
                                 : '',
                             markdown: true,
                         },
                         {
                             type: 'text',
-                            text: loaded ? `"${loaded[0]}"` : '',
+                            text: loaded[1] ? `"${loaded[0]}"` : '',
                             markdown: true,
                         },
                     ],
@@ -278,7 +280,8 @@ router.post('/callback', async (req, res, next) => {
             await saveMessage(message.conversation_id, callBackData.text, callBackData.time);
             // 저장했습니다 메시지 보내기
             let load = moment(callBackData.time).tz('Asia/Seoul');
-            //let load = new Date(callBackData.time)
+            console.log(load.toString())
+			console.log(load.format())
             await libKakaoWork.sendMessage({
                 conversationId: message.conversation_id,
                 text: '오늘의 좋은 기억을 온전히 저장했습니다.',
@@ -290,9 +293,9 @@ router.post('/callback', async (req, res, next) => {
                     },
                     {
                         type: 'text',
-                        text: `시간: ${load.years()}년 ${
-                            load.months() + 1
-                        }월 ${load.date()}일 ${load.hours()}시 ${load.minutes()}분 \n\n내용: ${callBackData.text}`,
+                        text: load?`시간: ${load.Years()}년 ${
+                            load.getMonth() + 1
+                        }월 ${load.getDate()}일 ${load.getHours()}시 ${load.getMinutes()}분 \n\n내용: ${callBackData.text}`:"err",
                         markdown: true,
                     },
                 ],
